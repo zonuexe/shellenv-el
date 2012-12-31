@@ -13,7 +13,7 @@ Install
 
 *atode kaku.*
 
-### manualy install
+### manual install
 
 **As you know.**
 
