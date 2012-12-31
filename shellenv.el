@@ -156,12 +156,13 @@
     .fst))
 
 ;;; string -> (string)
+;;; (shellenv/setenv "PATH")
 (defun shellenv/setenv (s)
   (let* ((.e (shellenv/.getenv s)))
     (setenv s .e)))
 
 ;;; () -> (string)
-;;; (shellenv/setenv "PATH")
+;;; (shellenv/setpath)
 (defun shellenv/setpath ()
   (let* ((.p (shellenv/.getenv "PATH"))
          (.l (shellenv/.parse-unix-path .p)))
@@ -170,21 +171,8 @@
     (setq-default eshell-path-env .p)
     .p))
 
-(shellenv/setpath)
-
-exec-path
-(shellenv/.getenv "PATH")
-
+;;; () -> (string)
 (defun shellenv ()
-  1)
-
-(let* ((zshpath
-        (car (split-string
-          (shell-command-to-string "/usr/bin/env zsh -c 'printenv PATH'")
-          "[\n ]+")))
-       (pathlst (shellenv/.parse-unix-path zshpath)))
-  (setq-default exec-path pathlst)
-  (setq-default eshell-path-env zshpath)
-  (setenv "PATH" zshpath))
+  (shellenv/setpath))
 
 (provide 'shellenv)
