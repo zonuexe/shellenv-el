@@ -112,10 +112,15 @@
    (t           nil)))
 
 ;;; (str*str*str) -> string
+;;; (shellenv/.buildcmd "bash" "-c" "printenv #{env}")
+;;;   => "bash -c 'printenv #{env}'"
 (defun shellenv/.buildcmd (s o c)
   (concat s " " o " '" c "'" ))
 
 ;;; string -> string
+
+;;; (shellenv/.firstline "/path/to/foo:/path/to-bar:/path-to/buz
+;;; ") => "/path/to/foo:/path/to-bar:/path-to/buz"
 (defun shellenv/.firstline (s)
   (let* ((.s (split-string s "\n"))
          (.t (car .s)))
@@ -125,7 +130,7 @@
 ;;; (shellenv/command-string) => "sh-c 'echo ${env}'"
 (defun shellenv/command-string ()
   (let* ((.pt (shellenv/.path2sh shellenv/path))
-         (.st (or shellenv/shell (shellenv/.2str .pt)))
+         (.st (shellenv/.2str (or shellenv/shell .pt)))
          (.opt (car (shellenv/cmdopt .st)))
          (.cmd (cadr (shellenv/cmdopt .st))))
     (shellenv/.buildcmd .st .opt .cmd)))
@@ -143,13 +148,32 @@
   (let* ((.cmd (shellenv/command-string)))
     (shellenv/.rep-env s .cmd)))
 
-(defun shellenv/getenv (s)
-  (let* ((.cmd  (shellenv/getenv-command-string s))
-         (.get  (shell-command-to-string .cmd))
+;;; string -> string
+(defun shellenv/.getenv (s)
+  (let* ((.cmd (shellenv/getenv-command-string s))
+         (.get (shell-command-to-string .cmd))
          (.fst (shellenv/.firstline .get)))
     .fst))
 
-(shellenv/getenv "PATH")
+;;; string -> (string)
+(defun shellenv/setenv (s)
+  (let* ((.e (shellenv/.getenv s)))
+    (setenv s .e)))
+
+;;; () -> (string)
+;;; (shellenv/setenv "PATH")
+(defun shellenv/setpath ()
+  (let* ((.p (shellenv/.getenv "PATH"))
+         (.l (shellenv/.parse-unix-path .p)))
+    (shellenv/setenv .p)
+    (setq-default exec-path (append .l exec-path))
+    (setq-default eshell-path-env .p)
+    .p))
+
+(shellenv/setpath)
+
+exec-path
+(shellenv/.getenv "PATH")
 
 (defun shellenv ()
   1)
