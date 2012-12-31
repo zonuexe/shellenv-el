@@ -103,6 +103,7 @@
   (concat shellenv/env-cmd " " s))
 
 ;;; 'a -> string
+;;; (shellenv/.2str 'bash) => "bash"
 (defun shellenv/.2str (s)
   (cond
    ((eq s nil)         nil)
@@ -110,17 +111,24 @@
    ((stringp s) s)
    (t           nil)))
 
+;;; (str*str*str) -> string
+(defun shellenv/.buildcmd (s o c)
+  (concat s " " o " '" c "'" ))
+
+;;; string -> string
+(defun shellenv/.firstline (s)
+  (let* ((.s (split-string s "\n"))
+         (.t (car .s)))
+    .t))
+
 ;;; () -> symbol
-(defun shellenv/shell ()
+;;; (shellenv/command-string) => "sh-c 'echo ${env}'"
+(defun shellenv/command-string ()
   (let* ((.pt (shellenv/.path2sh shellenv/path))
          (.st (or shellenv/shell (shellenv/.2str .pt)))
          (.opt (car (shellenv/cmdopt .st)))
-         (.cmd (car (cdr (shellenv/cmdopt .st)))))
-    (concat .st " " .opt " '" .cmd "'" )))
-
-(setq shellenv/shell "zsh")
-(shellenv/shell)
-(assoc-default (shellenv/shell) shellenv/option-alist)
+         (.cmd (cadr (shellenv/cmdopt .st))))
+    (shellenv/.buildcmd .st .opt .cmd)))
 
 ;;; () -> string
 (defun shellenv/cmdopt (s)
@@ -129,12 +137,19 @@
        s
        shellenv/option-alist)))
 
-;;; () -> string
-(defun shellenv/cmdstr ()
-  (concat shellenv/path " "
-          shellenv/option " "
-          "'" (shellenv/cmd) "'"))
-(shellenv/cmdstr)
+;;; string -> string
+;;; (shellenv/getenv-command-string "PATH") => "sh -c 'echo $PATH'"
+(defun shellenv/getenv-command-string (s)
+  (let* ((.cmd (shellenv/command-string)))
+    (shellenv/.rep-env s .cmd)))
+
+(defun shellenv/getenv (s)
+  (let* ((.cmd  (shellenv/getenv-command-string s))
+         (.get  (shell-command-to-string .cmd))
+         (.fst (shellenv/.firstline .get)))
+    .fst))
+
+(shellenv/getenv "PATH")
 
 (defun shellenv ()
   1)
