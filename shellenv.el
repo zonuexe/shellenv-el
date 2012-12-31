@@ -3,8 +3,9 @@
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; URL: https://github.com/zonuexe/load-shellenv-el
-;; Version: 0.0.1
-;; Keywords: shell
+;; Version: 0.0.2
+;; Created: 31 Dec 2012
+;; Keywords: internal
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -76,11 +77,11 @@
 
 ;; script local functions
 ;;; string -> [string]
-(defun shellenv/.parse-unix-path (p)
+(defun shellenv/.split-unix-path (p)
   (split-string p ":"))
 
 ;;; string -> [string]
-(defun shellenv/.parse-dos-path (p)
+(defun shellenv/.split-dos-path (p)
   (split-string p ";"))
 
 ;;; string -> string
@@ -161,11 +162,13 @@
   (let* ((.e (shellenv/.getenv s)))
     (setenv s .e)))
 
+(defun shell)
+
 ;;; () -> (string)
 ;;; (shellenv/setpath)
 (defun shellenv/setpath ()
   (let* ((.p (shellenv/.getenv "PATH"))
-         (.l (shellenv/.parse-unix-path .p)))
+         (.l (shellenv/.split-unix-path .p)))
     (shellenv/setenv .p)
     (setq-default exec-path (append .l exec-path))
     (setq-default eshell-path-env .p)
