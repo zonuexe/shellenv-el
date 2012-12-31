@@ -162,6 +162,8 @@
   (let* ((.e (shellenv/.getenv s)))
     (setenv s .e)))
 
+(defun shell)
+
 ;;; () -> (string)
 ;;; (shellenv/setpath)
 (defun shellenv/setpath ()
