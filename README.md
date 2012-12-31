@@ -20,7 +20,7 @@ Install
 Usage
 -----
 
-write your `.emacs` script.
+in your `.emacs` script.
 
 ```lisp
 (require 'shellenv)
