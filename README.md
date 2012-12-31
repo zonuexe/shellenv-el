@@ -29,7 +29,12 @@ in your `.emacs` script.
 (shellenv/setpath)
 ```
 
+日本語でおｋ
+------------
+
+ * [Emacsに環境変数を取り込む… の次。(with 初めてのelisp) #Emacs #rbenv - Qiita](http://qiita.com/items/bdc979a7b93ea8f76bd3)
+
 License
 -------
 
-`shellenv.el` is licensed under **GPL version 3** and **NYSL 0.9982**. (*DUAL License*)
+`shellenv.el` is licensed under **GPL version 3** and **NYSL 0.9982**. ( *DUAL License* )
