@@ -3,7 +3,7 @@
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; URL: https://github.com/zonuexe/load-shellenv-el
-;; Version: 0.0.2
+;; Version: 0.0.3
 ;; Created: 31 Dec 2012
 ;; Keywords: internal
 
@@ -169,7 +169,7 @@
 (defun shellenv/setpath ()
   (let* ((.p (shellenv/.getenv "PATH"))
          (.l (shellenv/.split-unix-path .p)))
-    (shellenv/setenv .p)
+    (setenv "PATH" .p)
     (setq-default exec-path (append .l exec-path))
     (setq-default eshell-path-env .p)
     .p))
