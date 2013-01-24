@@ -3,7 +3,7 @@
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; URL: https://github.com/zonuexe/load-shellenv-el
-;; Version: 0.0.3
+;; Version: 0.0.4
 ;; Created: 31 Dec 2012
 ;; Keywords: internal
 
@@ -161,8 +161,6 @@
 (defun shellenv/setenv (s)
   (let* ((.e (shellenv/.getenv s)))
     (setenv s .e)))
-
-(defun shell)
 
 ;;; () -> (string)
 ;;; (shellenv/setpath)
