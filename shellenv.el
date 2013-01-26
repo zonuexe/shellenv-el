@@ -143,20 +143,20 @@
        s
        shellenv/option-alist)))
 
-;;; string -> string
+;;; (string) -> string
 ;;; (shellenv/getenv-command-string "PATH") => "sh -c 'echo $PATH'"
 (defun shellenv/getenv-command-string (s)
   (let* ((.cmd (shellenv/command-string)))
     (shellenv/.rep-env s .cmd)))
 
-;;; string -> string
+;;; (string) -> string
 (defun shellenv/.getenv (s)
   (let* ((.cmd (shellenv/getenv-command-string s))
          (.get (shell-command-to-string .cmd))
          (.fst (shellenv/.firstline .get)))
     .fst))
 
-;;; string -> (string)
+;;; (string) -> (string)
 ;;; (shellenv/setenv "PATH")
 (defun shellenv/setenv (s)
   (let* ((.e (shellenv/.getenv s)))
@@ -177,3 +177,54 @@
   (shellenv/setpath))
 
 (provide 'shellenv)
+
+
+(dont-compile
+  (when (fboundp 'el-get)
+    (el-get 'sync 'el-expectations)
+    (el-get 'sync 'el-mock)
+    (require 'el-expectations)
+    (require 'el-mock))
+  (when (fboundp 'expectations)
+    (expectations
+      (desc "split unix-path")
+      (expect '("/bin" "/usr/bin")
+	(shellenv/.split-unix-path "/bin:/usr/bin"))
+      (desc "build command")
+      (expect "zsh -c 'printenv PATH'"
+	(shellenv/.rep-env "PATH" "zsh -c 'printenv #{env}'"))
+      (desc "extract \"c\"")
+      (expect "c"
+	(shellenv/.path2sh "/a/b/c"))
+      (desc "extract \"zsh\"")
+      (expect "zsh"
+	(shellenv/.path2sh "/usr/local/bin/zsh"))
+      (desc "extract \"sh\"")
+      (expect "sh"
+	(shellenv/.path2sh "/bin/sh"))
+      (desc "extract \"bash\"")
+      (expect "bash"
+	(shellenv/.path2sh "/path/to/bash"))
+
+      (expect "/usr/bin/env foo"
+	(shellenv/.envstr "foo"))
+
+      (expect "/foo/bar/buz -c 'printenv PATH'"
+	(shellenv/.buildcmd "/foo/bar/buz" "-c" "printenv PATH"))
+
+      (expect "hoge"
+	(shellenv/.firstline "hoge
+"))
+
+      (expect "hoge"
+	(shellenv/.firstline "hoge
+
+fuga"))
+
+      (expect ""
+	(shellenv/.firstline ""))
+
+      (expect ""
+	(shellenv/.firstline "
+hogehogefugafuga"))
+)))
