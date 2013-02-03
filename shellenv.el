@@ -2,8 +2,8 @@
 ;;; shellenv.el --- load environment variables of your shell
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
-;; URL: https://github.com/zonuexe/load-shellenv-el
-;; Version: 0.0.4
+;; URL: https://github.com/zonuexe/shellenv-el
+;; Version: 0.0.5
 ;; Created: 31 Dec 2012
 ;; Keywords: internal
 
@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-;; user definable variables
+;; user customizable variables
 
 (defcustom shellenv/path nil
   "Path to shell which you use."
@@ -77,95 +77,96 @@
 
 ;; script local functions
 ;;; string -> [string]
-(defun shellenv/.split-unix-path (p)
-  (split-string p ":"))
+(defun shellenv/.split-unix-path (paths)
+  (split-string paths ":"))
 
 ;;; string -> [string]
-(defun shellenv/.split-dos-path (p)
-  (split-string p ";"))
+(defun shellenv/.split-dos-path (paths)
+  (split-string paths ";"))
 
 ;;; string -> string
 ;;; (shellenv/.rep-env "PATH" "foo -c #{env}") = > "foo -c PATH"
-(defun shellenv/.rep-env (s v)
-  (replace-regexp-in-string "#{env}" s v))
+(defun shellenv/.rep-env (rep string)
+  (replace-regexp-in-string "#{env}" rep string))
 
 ;;; string -> string
 ;;; (shellenv/.path2sh "/path/to/zsh") => "zsh"
-(defun shellenv/.path2sh (p)
-  (let ((l (and p (car (last (split-string p "/"))))))
+(defun shellenv/.path2sh (shell-path)
+  (let ((l (and shell-path (car (last (split-string shell-path "/"))))))
     (cond
-     ((equal p l)  nil)
-     ((equal l "") nil)
-     (t            l))))
+     ((equal shell-path l)  nil)
+     ((equal l "")          nil)
+     (t                     l))))
 
 ;;; string -> string
 ;;; (shellenv/.envstr "bash") => "/usr/bin/env bash"
-(defun shellenv/.envstr (s)
-  (concat shellenv/env-cmd " " s))
+(defun shellenv/.envstr (string)
+  (concat shellenv/env-cmd " " string))
 
 ;;; 'a -> string
 ;;; (shellenv/.2str 'bash) => "bash"
-(defun shellenv/.2str (s)
-  (cond
-   ((eq s nil)         nil)
-   ((symbolp s) (symbol-name s))
-   ((stringp s) s)
-   (t           nil)))
+(defun shellenv/.2str (symbol-or-string)
+  (let ((s symbol-or-string))
+    (cond
+     ((eq s nil)  nil)
+     ((symbolp s) (symbol-name s))
+     ((stringp s) s)
+     (t           nil))))
 
 ;;; (str*str*str) -> string
 ;;; (shellenv/.buildcmd "bash" "-c" "printenv #{env}")
 ;;;   => "bash -c 'printenv #{env}'"
-(defun shellenv/.buildcmd (s o c)
-  (concat s " " o " '" c "'" ))
+(defun shellenv/.buildcmd (shell option command)
+  (concat shell " " option " '" command "'" ))
 
 ;;; string -> string
 
 ;;; (shellenv/.firstline "/path/to/foo:/path/to-bar:/path-to/buz
 ;;; ") => "/path/to/foo:/path/to-bar:/path-to/buz"
-(defun shellenv/.firstline (s)
-  (let* ((.s (split-string s "\n"))
+(defun shellenv/.firstline (string)
+  (let* ((.s (split-string string "\n"))
          (.t (car .s)))
     .t))
 
 ;;; () -> symbol
 ;;; (shellenv/command-string) => "sh-c 'echo ${env}'"
-(defun shellenv/command-string ()
+(defun shellenv/command-string (&optional shell)
   (let* ((.pt (shellenv/.path2sh shellenv/path))
-         (.st (shellenv/.2str (or shellenv/shell .pt)))
+         (.st (shellenv/.2str (or shell shellenv/shell .pt)))
          (.opt (car (shellenv/cmdopt .st)))
          (.cmd (cadr (shellenv/cmdopt .st))))
     (shellenv/.buildcmd .st .opt .cmd)))
 
 ;;; () -> string
-(defun shellenv/cmdopt (s)
+(defun shellenv/cmdopt (shell)
   (or shellenv/command
       (assoc-default
-       s
+       shell
        shellenv/option-alist)))
 
 ;;; (string) -> string
 ;;; (shellenv/getenv-command-string "PATH") => "sh -c 'echo $PATH'"
-(defun shellenv/getenv-command-string (s)
-  (let* ((.cmd (shellenv/command-string)))
-    (shellenv/.rep-env s .cmd)))
+(defun shellenv/getenv-command-string (string &optional shell)
+  (let* ((.cmd (shellenv/command-string shell)))
+    (shellenv/.rep-env string .cmd)))
 
 ;;; (string) -> string
-(defun shellenv/.getenv (s)
-  (let* ((.cmd (shellenv/getenv-command-string s))
+(defun shellenv/.getenv (environment-variable-name &optional shell)
+  (let* ((.cmd (shellenv/getenv-command-string environment-variable-name shell))
          (.get (shell-command-to-string .cmd))
          (.fst (shellenv/.firstline .get)))
     .fst))
 
 ;;; (string) -> (string)
 ;;; (shellenv/setenv "PATH")
-(defun shellenv/setenv (s)
-  (let* ((.e (shellenv/.getenv s)))
-    (setenv s .e)))
+(defun shellenv/setenv (environment-variable-name)
+  (let* ((.e (shellenv/.getenv environment-variable-name)))
+    (setenv environment-variable-name .e)))
 
 ;;; () -> (string)
 ;;; (shellenv/setpath)
-(defun shellenv/setpath ()
-  (let* ((.p (shellenv/.getenv "PATH"))
+(defun shellenv/setpath (&optional shell)
+  (let* ((.p (shellenv/.getenv "PATH" shell))
          (.l (shellenv/.split-unix-path .p)))
     (setenv "PATH" .p)
     (setq-default exec-path (append .l exec-path))
@@ -178,13 +179,10 @@
 
 (provide 'shellenv)
 
-
+;;; Test:
 (dont-compile
-  (when (fboundp 'el-get)
-    (el-get 'sync 'el-expectations)
-    (el-get 'sync 'el-mock)
-    (require 'el-expectations)
-    (require 'el-mock))
+  (require 'el-expectations)
+  (require 'el-mock)
   (when (fboundp 'expectations)
     (expectations
       (desc "split unix-path")

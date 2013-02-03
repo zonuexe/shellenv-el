@@ -24,10 +24,20 @@ in your `.emacs` script.
 
 ```lisp
 (require 'shellenv)
+
+;; most simple way
+(shellenv/setpath 'zsh)
+
+;; other way
 (custom-set-variables
  '(shellenv/shell 'zsh))
 (shellenv/setpath)
 ```
+
+Example
+-------
+
+ * [dotfiles/_emacs.d/conf/init-environment.el at master · zonuexe/dotfiles · GitHub](https://github.com/zonuexe/dotfiles/blob/master/_emacs.d/conf/init-environment.el)
 
 日本語でおｋ
 ------------
