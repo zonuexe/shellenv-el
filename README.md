@@ -43,6 +43,7 @@ Example
 ------------
 
  * [Emacsに環境変数を取り込む… の次。(with 初めてのelisp) #Emacs #rbenv - Qiita](http://qiita.com/items/bdc979a7b93ea8f76bd3)
+ * [Emacsに環境変数を取り込む… をもっと。 #Emacs #Zsh - Qiita](http://qiita.com/items/51a2b869774f93f0d7cb)
 
 License
 -------
