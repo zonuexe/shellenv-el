@@ -117,7 +117,7 @@
 ;;; (shellenv/.buildcmd "bash" "-c" "printenv #{env}")
 ;;;   => "bash -c 'printenv #{env}'"
 (defun shellenv/.buildcmd (shell option command rcfile)
-  (concat shell " " rcfile option " '" command "'" ))
+  (concat shell " " option " '" rcfile command "'" ))
 
 ;;; string -> string
 
