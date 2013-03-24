@@ -1,9 +1,9 @@
 ;;; -*- coding: utf-8; lexical-binding: t -*-
-;;; shellenv.el --- load environment variables of your shell
+;;; shellenv.el --- Load environment-variables from shell
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; URL: https://github.com/zonuexe/shellenv-el
-;; Version: 0.0.5
+;; Version: 0.0.6
 ;; Created: 31 Dec 2012
 ;; Keywords: internal
 
@@ -63,11 +63,11 @@
 
 (defcustom shellenv/option-alist
   '(
-    ("zsh"  . ("-c" "printenv #{env}"))
-    ("bash" . ("-c" "printenv #{env}"))
-    ("ash"  . ("-c" "echo $#{env}"))
-    ("dash" . ("-c" "echo $#{env}"))
-    ("sh"   . ("-c" "echo $#{env}"))
+    ("zsh"  . ("-c" "printenv #{env}" ". $HOME/.zshrc; "))
+    ("bash" . ("-c" "printenv #{env}" ". $HOME/.bashrc; "))
+    ("ash"  . ("-c" "echo $#{env}"    ". $ENV; "))
+    ("dash" . ("-c" "echo $#{env}"    ". $ENV; "))
+    ("sh"   . ("-c" "echo $#{env}"    ". $ENV; "))
     ; ("ps1" . ("" "Get-Item Env:${env}"))
     ; ("cmd" . ("" "%#{env}%"))
     (nil    . ("-c" "echo $")))
@@ -116,8 +116,8 @@
 ;;; (str*str*str) -> string
 ;;; (shellenv/.buildcmd "bash" "-c" "printenv #{env}")
 ;;;   => "bash -c 'printenv #{env}'"
-(defun shellenv/.buildcmd (shell option command)
-  (concat shell " " option " '" command "'" ))
+(defun shellenv/.buildcmd (shell option command rcfile)
+  (concat shell " " option " '" rcfile command "'" ))
 
 ;;; string -> string
 
@@ -130,12 +130,14 @@
 
 ;;; () -> symbol
 ;;; (shellenv/command-string) => "sh-c 'echo ${env}'"
-(defun shellenv/command-string (&optional shell)
+(defun shellenv/command-string (&optional shell &optional norc)
   (let* ((.pt (shellenv/.path2sh shellenv/path))
          (.st (shellenv/.2str (or shell shellenv/shell .pt)))
-         (.opt (car (shellenv/cmdopt .st)))
-         (.cmd (cadr (shellenv/cmdopt .st))))
-    (shellenv/.buildcmd .st .opt .cmd)))
+	 (.lst (shellenv/cmdopt .st))
+         (.opt (car  .lst))
+         (.cmd (cadr .lst))
+	 (.rc  (if norc "" (caddr .lst))))
+    (shellenv/.buildcmd .st .opt .cmd .rc)))
 
 ;;; () -> string
 (defun shellenv/cmdopt (shell)
@@ -146,13 +148,15 @@
 
 ;;; (string) -> string
 ;;; (shellenv/getenv-command-string "PATH") => "sh -c 'echo $PATH'"
-(defun shellenv/getenv-command-string (string &optional shell)
-  (let* ((.cmd (shellenv/command-string shell)))
+(defun shellenv/getenv-command-string
+  (string &optional shell &optional norc)
+  (let* ((.cmd (shellenv/command-string shell norc)))
     (shellenv/.rep-env string .cmd)))
 
 ;;; (string) -> string
-(defun shellenv/.getenv (environment-variable-name &optional shell)
-  (let* ((.cmd (shellenv/getenv-command-string environment-variable-name shell))
+(defun shellenv/.getenv
+  (environment-variable-name &optional shell &optional norc)
+  (let* ((.cmd (shellenv/getenv-command-string environment-variable-name shell norc))
          (.get (shell-command-to-string .cmd))
          (.fst (shellenv/.firstline .get)))
     .fst))
@@ -165,8 +169,8 @@
 
 ;;; () -> (string)
 ;;; (shellenv/setpath)
-(defun shellenv/setpath (&optional shell)
-  (let* ((.p (shellenv/.getenv "PATH" shell))
+(defun shellenv/setpath (&optional shell &optional norc)
+  (let* ((.p (shellenv/.getenv "PATH" shell norc))
          (.l (shellenv/.split-unix-path .p)))
     (setenv "PATH" .p)
     (setq-default exec-path (append .l exec-path))
@@ -174,7 +178,10 @@
     .p))
 
 ;;; () -> (string)
+;;;###autoload
 (defun shellenv ()
   (shellenv/setpath))
 
 (provide 'shellenv)
+
+;;; shellenv.el ends here.
