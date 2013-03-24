@@ -1,5 +1,5 @@
 ;;; -*- coding: utf-8; lexical-binding: t -*-
-;;; shellenv.el --- load environment variables of your shell
+;;; shellenv.el --- Load environment-variables from shell
 
 ;; Author: USAMI Kenta <tadsan@zonu.me>
 ;; URL: https://github.com/zonuexe/shellenv-el
@@ -178,7 +178,10 @@
     .p))
 
 ;;; () -> (string)
+;;;###autoload
 (defun shellenv ()
   (shellenv/setpath))
 
 (provide 'shellenv)
+
+;;; shellenv.el ends here.
