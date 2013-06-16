@@ -1,10 +1,13 @@
 ;;; -*- coding: utf-8; lexical-binding: t -*-
 ;;; shellenv.el --- Load environment-variables from shell
 
+;; Description: Load environment-variables from shell
 ;; Author: USAMI Kenta <tadsan@zonu.me>
-;; URL: https://github.com/zonuexe/shellenv-el
+;; Maintainer: USAMI Kenta
+;; Copyright (C) 2012,2013 USAMI Kenta all rights reserved.
 ;; Version: 0.0.6
 ;; Created: 31 Dec 2012
+;; URL: https://github.com/zonuexe/shellenv-el
 ;; Keywords: internal
 
 ;; This file is NOT part of GNU Emacs.
@@ -23,6 +26,15 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; Add to .emacs:
+;;   (require 'shellenv)
+;;   ;; for case of shellenv.el is in out of load-path
+;;   (require 'shellenv "~/.emacs.d/site-lisp/shellenv-el/shellenv")
+;;   ;; most simple way
+;;   (shellenv/setpath 'zsh)
 
 ;;; Code:
 
