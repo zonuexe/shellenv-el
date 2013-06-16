@@ -149,8 +149,8 @@
          (.st (shellenv/.2str (or shell shellenv/shell .pt)))
 	 (.lst (shellenv/cmdopt .st))
          (.opt (car  .lst))
-         (.cmd (cadr .lst))
-	 (.rc  (if norc "" (caddr .lst))))
+         (.cmd (car (cdr .lst)))
+	 (.rc  (if norc "" (car (cdr (cdr .lst))))))
     (shellenv/.buildcmd .st .opt .cmd .rc)))
 
 ;;; () -> string
