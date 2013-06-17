@@ -37,6 +37,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
+
 ;; user customizable variables
 
 (defcustom shellenv/path nil
