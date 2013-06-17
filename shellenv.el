@@ -1,4 +1,3 @@
-;;; -*- coding: utf-8; lexical-binding: t -*-
 ;;; shellenv.el --- Load environment-variables from shell
 
 ;; Description: Load environment-variables from shell
@@ -195,5 +194,10 @@
   (shellenv/setpath))
 
 (provide 'shellenv)
+
+;; Local Variables:
+;; coding: utf-8
+;; lexical-binding: t
+;; End:
 
 ;;; shellenv.el ends here.
