@@ -3,6 +3,20 @@ shellenv.el
 
 Load environment-variables from shell.
 
+Important notifications
+-----------------------
+
+`shellenv.el` is *deprecated*. It's just an defective subset of [purcell/exec-path-from-shell](https://github.com/purcell/exec-path-from-shell/).
+All your demand will be met by `exec-path-from-shell`, and I think that it does not have a fault.
+
+This repository is left only for my studying. Your code using `shellenv` should be replaced without exception by `exec-path-from-shell`.
+
+### Related links
+
+ * [purcell/exec-path-from-shell](https://github.com/purcell/exec-path-from-shell/)
+ * [Add shellenv recipe by zonuexe · Pull Request #829 · milkypostman/melpa](https://github.com/milkypostman/melpa/pull/829)
+ * *(Japanese)* [EmacsでPATHの設定が引き継がれない問題をエレガントに解決する](http://qiita.com/catatsuy/items/3dda714f4c60c435bb25)
+
 Target
 ------
 
