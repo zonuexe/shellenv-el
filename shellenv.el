@@ -130,8 +130,8 @@
 ;;; (str*str*str) -> string
 ;;; (shellenv/.buildcmd "bash" "-c" "printenv #{env}")
 ;;;   => "bash -c 'printenv #{env}'"
-(defun shellenv/.buildcmd (shell option command rcfile)
-  (concat shell " " option " '" rcfile command "'" ))
+(defun shellenv/.buildcmd (shell option command rcfile redirection)
+  (concat shell " " option " '" rcfile command "'" redirection))
 
 ;;; string -> string
 
@@ -151,7 +151,7 @@
          (.opt (car  .lst))
          (.cmd (cadr .lst))
 	 (.rc  (if norc "" (caddr .lst))))
-    (shellenv/.buildcmd .st .opt .cmd .rc)))
+    (shellenv/.buildcmd .st .opt .cmd .rc " 2> /dev/null")))
 
 ;;; () -> string
 (defun shellenv/cmdopt (shell)
